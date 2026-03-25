@@ -1,0 +1,27 @@
+{
+    "mqtt": {
+        "endpoint": "mqtt.xiaozhi.me",
+        "client_id": "GID_test@@@24_ec_4a_25_0a_90@@@58325077-7497-4971-8f3a-fd0944c28ad9",
+        "username": "eyJpcCI6IjIyMS4yMTcuNTUuMTMzIn0=",
+        "password": "y1WF01HJnyvpYEHaijiGljxmnQNm6NVoORABzVilSOo=",
+        "publish_topic": "device-server",
+        "subscribe_topic": "null"
+    },
+    "websocket": {
+        "url": "wss://api.tenclass.net/xiaozhi/v1/",
+        "token": "test-token"
+    },
+    "server_time": {
+        "timestamp": 1755913861737,
+        "timezone_offset": 480
+    },
+    "firmware": {
+        "version": "1.0.1",
+        "url": ""
+    },
+    "activation": {
+        "code": "440829",
+        "message": "xiaozhi.me\n440829",
+        "challenge": "cb57fd63-8f67-4f72-b333-0ccf4c4d52ea"
+    }
+}
