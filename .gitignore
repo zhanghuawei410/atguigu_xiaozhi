@@ -1,3 +1,31 @@
+# Build directories
 build/
+build_*/
+
+# ESP-IDF configuration
 sdkconfig
 sdkconfig.old
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled files
+*.o
+*.a
+*.elf
+*.bin
+*.map
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary files
+*.log
+*.tmp
