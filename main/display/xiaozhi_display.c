@@ -146,13 +146,18 @@ void xiaozhi_display_init(void)
 
     lvgl_port_unlock();
 }
-
+/*
+ * 显示提示信息
+ */
 void xiaozhi_display_tip(char *tip)
 {
     lvgl_port_lock(0);
     lv_label_set_text(tip_label, tip);
     lvgl_port_unlock();
 }
+/*
+ * 显示文本内容
+ */
 void xiaozhi_display_text(char *text)
 {
     lvgl_port_lock(0);
@@ -198,6 +203,7 @@ void xiaozhi_display_emoji(char *emoji_name)
 //     lvgl_port_unlock();
 // }
 
+/*  显示二维码 */
 void xiaozhi_display_show_qrcode(char *data, uint32_t data_len)
 {
     lvgl_port_lock(0);
