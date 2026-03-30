@@ -18,3 +18,5 @@ dependencies:
   espressif/qrcode: ^0.1.0~2
   espressif/esp_lvgl_port: ^2.6.0
   78/xiaozhi-fonts: ^1.4.0
+  espressif/esp_codec_dev: ^1.5.4
+  espressif/esp-sr: ^2.4.0
