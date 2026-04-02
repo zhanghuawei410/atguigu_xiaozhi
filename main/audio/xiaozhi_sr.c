@@ -1,20 +1,38 @@
 #include "xiaozhi_sr.h"
 #include "xiaozhi_hard_codec.h"
 #include "esp_log.h"
+#include "common_types.h"
+
+extern xiaozhi_handle_t xiaozhi_handle;
 
 #define TAG "XIAOZHI_SR"
 
 static esp_afe_sr_iface_t *afe_handle = NULL;
 esp_afe_sr_data_t *afe_data = NULL;
+
+
+void xiaozhi_vad_cb_test(void)
+{
+    ESP_LOGI(TAG, "VAD状态改变回调函数被调用,当前状态 %s \r\n",xiaozhi_handle.current_vad_state == VAD_SPEECH ? "语音" : "静音");
+}
+
+
 void xiaozhi_sr_init(void)
 {
+
+    xiaozhi_handle.vad_change_callback = xiaozhi_vad_cb_test;
     // inti 8311
     xiaozhi_codec_init();
     /* 初始化模型列表 */
     srmodel_list_t *models = esp_srmodel_init("model");
     /* 初始化AFE配置 */
     afe_config_t *afe_config = afe_config_init("M", models, AFE_TYPE_SR, AFE_MODE_HIGH_PERF);
-    afe_config->vad_min_noise_ms = 1000; // The minimum duration of noise or silence in ms.
+
+    afe_config->se_init = false;
+    afe_config->aec_init = false;
+    afe_config->vad_mode = false;
+
+    afe_config->vad_min_noise_ms = 500; // The minimum duration of noise or silence in ms.
     afe_config->vad_min_speech_ms = 128; // The minimum duration of speech in ms.
     afe_config->vad_mode = VAD_MODE_1;   // The larger the mode, the higher the speech trigger probability.
     /* 初始化AFE句柄 */
@@ -59,20 +77,43 @@ void xiaozhi_sr_get_tast(void *arg)
         if (res->wakeup_state == WAKENET_DETECTED)
         {
             ESP_LOGI(TAG, "唤醒词已触发");
+            // 为了安全 上次 状态为静默状态
+            xiaozhi_handle.last_vas_state = VAD_SILENCE;
+            xiaozhi_handle.current_vad_state = VAD_SILENCE;
+            xiaozhi_handle.wake_flag = true; // 设置唤醒标志
             /* 唤醒后的处理逻辑，例如启动语音识别 */
-        }
+            /* 执行回调函数 */
+            if (xiaozhi_handle.wake_callback)
+            {
+                xiaozhi_handle.wake_callback();
+            }
+       }
+       /* 我们关注的是关键词唤醒后 人声状态的改变 */
+       if (xiaozhi_handle.wake_flag)
+       {
+            // 更新当前的状态 而且这个地方 是 唤醒后 才会更新
+            xiaozhi_handle.current_vad_state = res->vad_state;
+            if (xiaozhi_handle.current_vad_state != xiaozhi_handle.last_vas_state)
+            {
+                if (xiaozhi_handle.vad_change_callback)
+                {
+                    xiaozhi_handle.vad_change_callback();
+                }
 
-        vad_state_t vad_state = res->vad_state;
-        if (vad_state == VAD_SILENCE)
-        {
-            /* 无人声：静音或噪声 */
-            ESP_LOGI(TAG, "当前为静音或噪声");
-        }
-        else if (vad_state == VAD_SPEECH)
-        {
-            /* 有人声：res->data 中为处理后的音频数据，可送入语音识别 */
-            ESP_LOGI(TAG, "检测到语音活动，数据大小：%d bytes", res->data_size);
-            /* 处理语音数据，例如送入ASR引擎 */
-        }
+                // 语音结束（SPEECH → SILENCE），本轮交互结束，清除唤醒标志
+                if (xiaozhi_handle.last_vas_state == VAD_SPEECH
+                    && xiaozhi_handle.current_vad_state == VAD_SILENCE)
+                {
+                    ESP_LOGI(TAG, "语音结束，清除唤醒标志");
+                    xiaozhi_handle.wake_flag = false;
+                }
+
+                // 更新 上次 状态 将当前状态 存 为 上次状态
+                xiaozhi_handle.last_vas_state = xiaozhi_handle.current_vad_state;
+            }
+       }
     }
+
+
+
 }
