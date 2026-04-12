@@ -71,6 +71,16 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 2.4.0
+  espressif/esp_audio_codec:
+    component_hash: af4663830bc73eca58febcc34a976d003465e78ed57458aa00a14b231e392ca1
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.4'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 2.4.1
   espressif/esp_codec_dev:
     component_hash: d67021bdb3f619cebabdfabd4507d978dfa5cddf3ae8db4752b23843cf2cc2d9
     dependencies:
@@ -117,10 +127,11 @@ direct_dependencies:
 - 78/xiaozhi-fonts
 - espressif/button
 - espressif/esp-sr
+- espressif/esp_audio_codec
 - espressif/esp_codec_dev
 - espressif/esp_lvgl_port
 - espressif/qrcode
 - idf
-manifest_hash: 296a67fe50d227bd5503d64e7f86e8f31107d5d4953bdea5b6d115ac78e9385c
+manifest_hash: d367a4593122cfa198ed1ebcc00ed8fa2f345ee5f9c083df026ca47a0a09b0b4
 target: esp32s3
 version: 2.0.0
