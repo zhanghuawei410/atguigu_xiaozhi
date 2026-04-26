@@ -9,11 +9,12 @@ typedef struct
     char *websocket_token;
     bool active_flag;  // 激活标志
     char *active_code; // 用来保存激活码
-
+    char *mac_str;
+    char *uuid; // 也是client-id
     // 整个业务中所有的环形缓冲区句柄
     RingbufHandle_t sr2encoder_ringbuffer_handle;
     RingbufHandle_t encoder2ws_ringbuffer_handle;
-    RingbufHandle_t decoder_in_ring_h; //解码器 输入的环形缓冲区
+    RingbufHandle_t decoder_in_ring_h; // 解码器 输入的环形缓冲区
 
     void (*wake_callback)(void); // 唤醒回调函数
     vad_state_t last_vas_state;

@@ -31,7 +31,7 @@ void xiaozhi_sr_init(void)
     afe_config->aec_init = false;
     afe_config->vad_mode = false;
 
-    afe_config->vad_min_noise_ms = 1000; // 静音持续1500ms才判定语音结束，允许说话中的自然停顿
+    afe_config->vad_min_noise_ms = 1500; // 静音持续1500ms才判定语音结束，允许说话中的自然停顿
     afe_config->vad_min_speech_ms = 300; // 最短语音300ms，避免短促噪声误触
     afe_config->vad_mode = VAD_MODE_1;   // The larger the mode, the higher the speech trigger probability.
     /* 初始化AFE句柄 */
@@ -41,8 +41,8 @@ void xiaozhi_sr_init(void)
 
     /* 创建喂数据任务，绑定到CPU0（音频采集对实时性要求高，独占核心） */
     xTaskCreatePinnedToCoreWithCaps(xiaozhi_sr_feed_tast, "sr_feed", 32 * 1024, NULL, 5, NULL, 0, MALLOC_CAP_SPIRAM);
-    /* 创建取数据任务，绑定到CPU1（AFE处理与业务逻辑） */
-    xTaskCreatePinnedToCoreWithCaps(xiaozhi_sr_get_tast, "sr_get", 32 * 1024, NULL, 5, NULL, 1, MALLOC_CAP_SPIRAM);
+    /* 创建取数据任务，绑定到CPU1（AFE处理与业务逻辑，优先级高于feed避免ringbuffer溢出） */
+    xTaskCreatePinnedToCoreWithCaps(xiaozhi_sr_get_tast, "sr_get", 32 * 1024, NULL, 7, NULL, 1, MALLOC_CAP_SPIRAM);
 }
 
 /* 喂数据线程 */

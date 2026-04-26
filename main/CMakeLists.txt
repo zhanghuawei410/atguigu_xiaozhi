@@ -2,4 +2,5 @@ idf_component_register(SRCS "main.c" "./button/xiaozhi_button.c" "./internet/xia
                         "./audio/xiaozhi_opus_encodec.c"
                         "./audio/xiaozhi_sr.c"
                         "./audio/xiaozhi_opus_decoder.c"
-                    INCLUDE_DIRS "." "./button" "./internet" "./display" "./common" "./audio")
+                        "./internet/xiaozhi_ws.c"
+                    INCLUDE_DIRS "." "./button" "./internet" "./display" "./common" "./audio" "./pre_data")

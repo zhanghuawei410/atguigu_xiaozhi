@@ -10,6 +10,7 @@
 #include "audio/xiaozhi_opus_encodec.h"
 #include "audio/xiaozhi_opus_decoder.h"
 #include "freertos/ringbuf.h"
+#include "xiaozhi_ws.h"
 
 #define RING_FIFO_SIZE (8 * 1024)
 xiaozhi_handle_t xiaozhi_handle;
@@ -67,38 +68,42 @@ void encoder_decoder_test_task(void *ar)
 
 void app_main(void)
 {
-    // 1. 创建所有环形缓冲区
+    // 1. 创建所有环形缓冲区（基础资源，其他模块依赖）
     xiaozhi_create_all_ringbuffers();
 
-    // 2. 测试语音识别
+    // 2. 初始化显示屏（尽早显示，让用户看到启动状态）
+    xiaozhi_display_init();
+
+    // 3. 初始化WiFi（网络连接，激活和WebSocket依赖）
+    xiaozhi_wifi_init();
+
+    // 4. 初始化按键及回调（用户可随时操作）
+    xiaozhi_button_init();
+    xiaozhi_button_front_register_cb(BUTTON_SINGLE_CLICK, button_cb, (void *)1);
+    xiaozhi_button_back_register_cb(BUTTON_SINGLE_CLICK, button_cb, (void *)2);
+    xiaozhi_button_back_register_cb(BUTTON_LONG_PRESS_START, button_cb, (void *)3);
+
+    // 5. 设备激活（依赖WiFi）
+    xiaozhi_active_request();
+    if (xiaozhi_handle.active_flag == false) {
+        char *temp_buffer = (char *)calloc(60, 1);
+        snprintf(temp_buffer, 60, "请到官网控制台激活设备\n激活码: %s", xiaozhi_handle.active_code);
+        xiaozhi_display_text(temp_buffer);
+        free(temp_buffer);
+        xiaozhi_display_tip("激活后单击sw2按键");
+    }
+
+    // 6. 初始化语音识别（依赖环形缓冲区）
     xiaozhi_sr_init();
 
-    // 3. 初始化opus编码器
+    // 7. 初始化opus编解码器（依赖环形缓冲区）
     esp_err_t ret = xiaozhi_opus_encoder_init();
-    if (ret != ESP_OK)
-    {
+    if (ret != ESP_OK) {
         ESP_LOGE("main", "opus encoder init failed: %s", esp_err_to_name(ret));
         return;
     }
-    // 4.初始化opus解码器
     xiaozhi_opus_decoder_init();
-    // 5. 创建一个测试用的编码器-解码器数据搬运任务，正式流程中这个功能会被websocket相关的任务替代
-    xTaskCreate(encoder_decoder_test_task, "encoder_decoder_test_task", 32 * 1024, NULL, 5, NULL);
 
-    // TODO: 恢复完整初始化流程后删除以下注释
-    // xiaozhi_display_init();
-    // xiaozhi_wifi_init();
-    // xiaozhi_button_init();
-    // xiaozhi_button_front_register_cb(BUTTON_SINGLE_CLICK, button_cb, (void *)1);
-    // xiaozhi_button_back_register_cb(BUTTON_SINGLE_CLICK, button_cb, (void *)2);
-    // xiaozhi_button_back_register_cb(BUTTON_LONG_PRESS_START, button_cb, (void *)3);
-    // xiaozhi_display_delete_qrcode();
-    // xiaozhi_active_request();
-    // if (xiaozhi_handle.active_flag == false) {
-    //     char *temp_buffer = (char *)calloc(60, 1);
-    //     snprintf(temp_buffer, 60, "请到官网控制台激活设备\n激活码: %s", xiaozhi_handle.active_code);
-    //     xiaozhi_display_text(temp_buffer);
-    //     free(temp_buffer);
-    //     xiaozhi_display_tip("激活后单击sw2按键");
-    // }
+    // 8. 初始化WebSocket连接（依赖WiFi和音频模块）
+    xiaozhi_ws_init();
 }

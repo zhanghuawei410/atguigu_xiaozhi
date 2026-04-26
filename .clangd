@@ -1,0 +1,16 @@
+CompileFlags:
+  Add:
+    - "-Imain"
+    - "-Imain/include"
+    - "-Imanaged_components"
+    - "-IE:/esp/Espressif/esp-idf/v5.3.2/components"
+    - "-DESP_PLATFORM"
+    - "-DIDF_VER=\"v5.3.2\""
+  CompilationDatabase: build
+
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+
+Index:
+  Background: Build

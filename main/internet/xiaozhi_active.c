@@ -120,8 +120,10 @@ void xiaozhi_active_set_request_header(void)
     esp_wifi_get_mac(WIFI_IF_STA, mac);
     sprintf(mac_str, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     ESP_LOGW("xiaozhi_active", "Device-Id: %s", mac_str);
+    xiaozhi_handle.mac_str = mac_str;
     esp_http_client_set_header(client, "Device-Id", mac_str);
     xiaozhi_active_uuid_v4_gen(uuid_str);
+    xiaozhi_handle.uuid = uuid_str;
     esp_http_client_set_header(client, "Client-Id", uuid_str);
 }
 // 7b94d69a - 9808 - 4c59 - 9c9b - 704333b38aff
